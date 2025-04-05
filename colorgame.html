@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Guessing Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        #background-video {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            z-index: -1;
+            display: block;
+        }
+        .container {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding: 50px;
+            color: white;
+        }
+        .color-box {
+            width: 100px;
+            height: 100px;
+            margin: 20px auto;
+            border: 2px solid black;
+        }
+        .btn {
+            padding: 10px;
+            margin: 5px;
+            cursor: pointer;
+            border: none;
+            background-color: lightgray;
+        }
+        #gamePage, #endPage {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="startPage">
+        <video id="background-video" autoplay loop muted>
+            <source src="./color splash.mp4" type="video/mp4">
+        </video>
+        <div class="container">
+            <h1>Welcome to the Color Guessing Game</h1>
+            <button class="btn" onclick="startGame()">Start Game</button>
+        </div>
+    </div>
+    
+    <div id="gamePage">
+        <h1>Guess the Color!</h1>
+        <div class="color-box" id="colorBox"></div>
+        <h2 id="colorName"></h2>
+        <div id="choices"></div>
+        <p id="result"></p>
+        <p>Score: <span id="score">0</span></p>
+        <p>Lives: <span id="lives">3</span></p>
+    </div>
+
+    <div id="endPage">
+        <h1>Game Over!</h1>
+        <p>Your final score: <span id="finalScore"></span></p>
+        <button class="btn" onclick="restartGame()">Play Again</button>
+    </div>
+    
+    <script>
+        let score = 0;
+        let lives = 3;
+        const colorNames = {
+            "rgb(255, 0, 0)": "Red",
+            "rgb(0, 255, 0)": "Green",
+            "rgb(0, 0, 255)": "Blue",
+            "rgb(255, 255, 0)": "Yellow",
+            "rgb(255, 165, 0)": "Orange",
+            "rgb(128, 0, 128)": "Purple",
+            "rgb(0, 255, 255)": "Cyan",
+            "rgb(255, 192, 203)": "Pink",
+            "rgb(165, 42, 42)": "Brown",
+            "rgb(0, 0, 0)": "Black"
+        };
+
+        function getRandomColor() {
+            let keys = Object.keys(colorNames);
+            return keys[Math.floor(Math.random() * keys.length)];
+        }
+
+        function startGame() {
+            document.getElementById("startPage").style.display = "none";
+            document.getElementById("gamePage").style.display = "block";
+            score = 0;
+            lives = 3;
+            document.getElementById("score").innerText = score;
+            document.getElementById("lives").innerText = lives;
+            generateGame();
+        }
+
+        function generateGame() {
+            let correctColor = getRandomColor();
+            document.getElementById("colorBox").style.backgroundColor = correctColor;
+            document.getElementById("colorName").innerText = colorNames[correctColor];
+            
+            let choices = [correctColor, getRandomColor(), getRandomColor()];
+            choices.sort(() => Math.random() - 0.5);
+            
+            let choicesDiv = document.getElementById("choices");
+            choicesDiv.innerHTML = "";
+            
+            choices.forEach(color => {
+                let btn = document.createElement("button");
+                btn.className = "btn";
+                btn.innerText = colorNames[color];
+                btn.onclick = function() {
+                    if (color === correctColor) {
+                        score++;
+                        document.getElementById("score").innerText = score;
+                        document.getElementById("result").innerText = "Correct!";
+                    } else {
+                        lives--;
+                        document.getElementById("lives").innerText = lives;
+                        document.getElementById("result").innerText = "Try Again!";
+                        if (lives === 0) {
+                            endGame();
+                            return;
+                        }
+                    }
+                    setTimeout(generateGame, 1000);
+                };
+                choicesDiv.appendChild(btn);
+            });
+        }
+
+        function endGame() {
+            document.getElementById("gamePage").style.display = "none";
+            document.getElementById("endPage").style.display = "block";
+            document.getElementById("finalScore").innerText = score;
+        }
+
+        function restartGame() {
+            document.getElementById("endPage").style.display = "none";
+            document.getElementById("startPage").style.display = "block";
+        }
+    </script>
+</body>
+</html>
